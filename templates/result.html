@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Plagiarism Checker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/vendors/themify-icons/css/themify-icons.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/style.css') }}" >
+</head>
+<body data-spy="scroll" data-target=".navbar" data-offset="40" id="home">
+
+    <!-- Page Navbar -->
+    <nav class="custom-navbar" data-spy="affix" data-offset-top="20">
+      <div class="container">
+            <a class="logo" href="#">Plagiarism Checker</a>         
+            <ul class="nav">
+                <li class="item">
+                    <a class="link" href="#home">Home</a>
+                </li>
+                <li class="item">
+                    <a class="link" href="#about">About</a>
+            </ul>
+            <a href="javascript:void(0)" id="nav-toggle" class="hamburger hamburger--elastic">
+                <div class="hamburger-box">
+                  <div class="hamburger-inner"></div>
+                </div>
+            </a>
+        </div>          
+    </nav><!-- End of Page Navbar -->
+
+    <!-- page header -->
+    <header id="home" class="header">
+        <div class="overlay"></div>
+        <div class="header-content container">
+            <h1 class="header-title">
+                <span class="up">Results</span>
+            </h1>
+        </div>              
+    </header><!-- end of page header -->
+
+    <div class="containerx">
+        <table class="table1">
+            <tr>
+                <th>File</th>
+                <th>Similarity</th>
+                <th>Common Words</th>
+            </tr>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.file }}</td>
+                <td{% if result.similarity==1.0 or result.similarity>= 0.9999999999999998%}{% endif %}>{{ result.similarity }}</td>
+                <td>{{ result.common_words }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+	<!-- core  -->
+    <script src="static/assets/vendors/jquery/jquery-3.4.1.js"></script>
+    <script src="static/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+
+    <!-- bootstrap 3 affix -->
+	<script src="static/assets/vendors/bootstrap/bootstrap.affix.js"></script>
+
+    <!-- Meyawo js -->
+    <script src="static/assets/js/meyawo.js"></script>
+
+</body>
+</html>
