@@ -121,50 +121,6 @@ def get_common_words(text1, text2):
     common_words = [word for word in common]
     return common_words
 
-import PyPDF2
-
-def get_pdf_text(pdf_file):
-    # open the PDF file
-    pdf = PyPDF2.PdfReader(pdf_file)
-
-    # get the number of pages
-    num_pages = len(pdf.pages)
-
-    # initialize an empty string to store the text
-    text = ""
-
-    # iterate through the pages
-    for i in range(num_pages):
-        # get the text of the page
-        page = pdf.pages[i]
-        page_text = page.extract_text()
-
-        # add the page text to the overall text
-        text += page_text
-
-    # return the text
-    return text
-
-
-
-def extract_text_from_pdf(pdf_path):
-    with open(pdf_path, 'rb') as f:
-        # Create a PDF object
-        pdf = PyPDF2.PdfReader(f)
-        # Extract the text from all the pages
-        text = '\n'.join([pdf.getPage(page_num).extract_text() for page_num in range(pdf.getNumPages())])
-        return text
-
-def extract_text_from_pdfs_in_folder(folder_path):
-    # Get a list of all the PDF files in the folder
-    pdf_filenames = [f for f in os.listdir(folder_path) if f.endswith('.pdf')]
-    # Extract the text from each PDF file and store it in a dictionary
-    pdf_texts = {}
-    for pdf_filename in pdf_filenames:
-        pdf_path = os.path.join(folder_path, pdf_filename)
-        text = extract_text_from_pdf(pdf_path)
-        pdf_texts[pdf_filename] = text
-    return pdf_texts
 
 @app.route('/')
 def index():
@@ -177,37 +133,27 @@ def compare():
     file = request.files['file_path']
     folder_path = request.form['folder_path']
 
-    # # Create a PDF object from the uploaded file
-    # pdf = PyPDF2.PdfReader(file)
-    # # Extract the text from the PDF
-    # text1 = ""
-    # for page in range(len(pdf.pages)):
-    #     text1 += pdf.pages[page].extract_text()
-    #     #text1 += pdf.getPage(page).extractText()
-    # # Remove punctuation from the text
-    # text1 = re.sub(r'[^\w\s]', '', text1)
-    text1 = get_pdf_text(file)
+    # Create a PDF object from the uploaded file
+    pdf = PyPDF2.PdfReader(file)
+    # Extract the text from the PDF
+    text1 = ""
+    for page in range(len(pdf.pages)):
+        text1 += pdf.pages[page].extract_text()
+        #text1 += pdf.getPage(page).extractText()
+    # Remove punctuation from the text
+    text1 = re.sub(r'[^\w\s]', '', text1)
 
     files = os.listdir(folder_path)
     
     results = []
     for file in files:
-        #extract_text_from_pdfs_in_folder(file)
-        try:
-            with open(f'{folder_path}/{file}', 'r', encoding='utf-8') as f:
-                pdf2 = PyPDF2.PdfReader(f'{folder_path}/{file}')
-                text2 = ""
-                for page in range(len(pdf2.pages)):
-                    text2 += pdf2.pages[page].extract_text()
-                text2 = re.sub(r'[^\w\s]', '', text2)
-        except UnicodeDecodeError:
-            with open(f'{folder_path}/{file}', 'r', encoding='latin-1') as f:
-                pdf2 = PyPDF2.PdfReader(f'{folder_path}/{file}')
-                text2 = ""
-                for page in range(len(pdf2.pages)):
-                    text2 += pdf2.pages[page].extract_text()
-                text2 = re.sub(r'[^\w\s]', '', text2)
-        #
+       try:
+    with open(f'{folder_path}/{file}', 'r', encoding='utf-8') as f:
+        text2 = f.read()
+except UnicodeDecodeError:
+    with open(f'{folder_path}/{file}', 'r', encoding='latin-1') as f:
+        text2 = f.read()
+
         common_words = get_common_words(text1, text2)
         common_sentences = get_common_sentences(text1, text2)
         cosineSimilarity = get_cosine_similarity(text1, text2)
