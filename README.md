@@ -58,7 +58,7 @@ This program requires the following libraries:
   
   *- You'll Find A Folder In The Project Called /Data I've Put Some Samples For Test*
  
- # ScreenShots 
+ # Screenshots 
  
  ![Screenshot from 2022-12-30 15-18-24](https://user-images.githubusercontent.com/76593230/210074357-7e9391f4-7f2e-4970-963c-4a4b86e61f1d.png)
 
