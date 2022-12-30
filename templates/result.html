@@ -52,8 +52,8 @@
             <tr>
                 <td>{{ result.file }}</td>
                 <td>{{ result.jaccard }}</td>
-                <td>{{ result.editDistance }}</td>
-                <td>{{ result.cosineSimilarity }}</td>
+                <td {% if result.editDistance < 15 %} style="color: red; font-size: x-large;" {% endif %}>{{ result.editDistance }}</td>
+                <td {% if result.cosineSimilarity > 0.6 %} style="color: red; font-size: x-large;" {% endif %}>{{ result.cosineSimilarity }}</td>
                 <td>{{ result.common_sentences }}</td>
                 <td>{{ result.common_words }}</td>
             </tr>

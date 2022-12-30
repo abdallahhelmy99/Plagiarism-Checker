@@ -37,6 +37,16 @@
   box-sizing: border-box;
 }
 
+.file_path{
+  position: relative;
+  width: fit-content;
+  height: inherit;
+}
+.folder_path{
+  position: relative;
+  width: 550px;
+  height: inherit;}
+
 .table1{
   border: 5px solid black;
   position: relative;
@@ -48,10 +58,9 @@
   height: inherit;
 }
 th, td, tr{
-  border-right: 20px solid black;
-  border: solid;
-  border-width: 5px;
-  padding: 10px;
+  border: 20px solid black;
+  border-width: 4px;
+  padding: 15px;
   position: relative;
 }
 

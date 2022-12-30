@@ -13,6 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from Levenshtein import distance as edit_distance
 import PyPDF2
+from nltk.tokenize import word_tokenize
 
 
 
@@ -21,45 +22,105 @@ app = Flask(__name__)
 app.static_folder = 'static'
 
 
+stop_words = set(stopwords.words('english'))
+#define a function to remove stop words
+def remove_stop_words(text):
+    # split the text into words
+    words = text.split()
+    
+    # remove stop words
+    filtered_words = [word for word in words if word.lower() not in stop_words]
+    
+    # join the words
+    text = ' '.join(filtered_words)
+    
+    return text
 
-# create a function calculates cosine similarity
 def get_cosine_similarity(text1, text2):
+    # Split the sentences into words
     words1 = text1.split()
     words2 = text2.split()
     
+    # Calculate the frequencies of the words in each sentence
     frequency1 = Counter(words1)
     frequency2 = Counter(words2)
     
+    # Find the common words between the two sentences
     common = set(frequency1.keys()) & set(frequency2.keys())
     
+    # If there are no common words, return 0
     if not common:
         return 0
     
+    # Calculate the dot product and magnitudes of the frequency vectors
     dot_product = sum(frequency1[word] * frequency2[word] for word in common)
-    
     magnitude1 = sqrt(sum(frequency1[word]**2 for word in frequency1.keys()))
     magnitude2 = sqrt(sum(frequency2[word]**2 for word in frequency2.keys()))
     
+    # Calculate the cosine similarity
     similarity = dot_product / (magnitude1 * magnitude2)
     
     return similarity
 
 
+# def get_cosine_similarity(text1, text2):
+#     words1 = word_tokenize(text1)
+#     words2 = word_tokenize(text2)
+    
+#     frequency1 = Counter(words1)
+#     frequency2 = Counter(words2)
+    
+#     common = set(frequency1.keys()) & set(frequency2.keys())
+    
+#     if not common:
+#         return 0
+    
+#     dot_product = sum(frequency1[word] * frequency2[word] for word in common)
+    
+#     magnitude1 = sqrt(sum(frequency1[word]**2 for word in frequency1.keys()))
+#     magnitude2 = sqrt(sum(frequency2[word]**2 for word in frequency2.keys()))
+    
+#     similarity = dot_product / (magnitude1 * magnitude2)
+    
+#     return similarity
+
+# create a function calculates cosine similarity
+# def get_cosine_similarity(text1, text2):
+#     words1 = text1.split()
+#     words2 = text2.split()
+    
+#     frequency1 = Counter(words1)
+#     frequency2 = Counter(words2)
+    
+#     common = set(frequency1.keys()) & set(frequency2.keys())
+    
+#     if not common:
+#         return 0
+    
+#     dot_product = sum(frequency1[word] * frequency2[word] for word in common)
+    
+#     magnitude1 = sqrt(sum(frequency1[word]**2 for word in frequency1.keys()))
+#     magnitude2 = sqrt(sum(frequency2[word]**2 for word in frequency2.keys()))
+    
+#     similarity = dot_product / (magnitude1 * magnitude2)
+    
+#     return similarity
+
 
 def get_jaccard_distance(text1, text2):
+    # Split the texts into words
+    words1 = text1.split()
+    words2 = text2.split()
     
-    # split the text into sentences
-    sentences1 = sent_tokenize(text1)
-    sentences2 = sent_tokenize(text2)
-
-    # convert the sentences to sets
-    s1 = set(sentences1)
-    s2 = set(sentences2)
-
-    # compute the Jaccard distance
-    distance = jaccard_score(s1, s2)
+    # Find the intersection and union of the words in the texts
+    intersection = set(words1) & set(words2)
+    union = set(words1) | set(words2)
     
-    return distance
+    # Calculate the Jaccard distance
+    jaccard_score = 1 - len(intersection) / len(union)
+    
+    return jaccard_score
+
 
 
 def get_edit_distance(text1, text2):
@@ -73,7 +134,7 @@ def get_edit_distance(text1, text2):
     return distance
 
 # create a set of stop words
-stop_words = set(stopwords.words('english'))
+
 
 
 # create a function to find the common sentences
@@ -177,15 +238,6 @@ def compare():
     file = request.files['file_path']
     folder_path = request.form['folder_path']
 
-    # # Create a PDF object from the uploaded file
-    # pdf = PyPDF2.PdfReader(file)
-    # # Extract the text from the PDF
-    # text1 = ""
-    # for page in range(len(pdf.pages)):
-    #     text1 += pdf.pages[page].extract_text()
-    #     #text1 += pdf.getPage(page).extractText()
-    # # Remove punctuation from the text
-    # text1 = re.sub(r'[^\w\s]', '', text1)
     text1 = get_pdf_text(file)
 
     files = os.listdir(folder_path)
@@ -199,23 +251,26 @@ def compare():
                 text2 = ""
                 for page in range(len(pdf2.pages)):
                     text2 += pdf2.pages[page].extract_text()
-                text2 = re.sub(r'[^\w\s]', '', text2)
+                #text2 = re.sub(r'[^\w\s]', '', text2)
         except UnicodeDecodeError:
             with open(f'{folder_path}/{file}', 'r', encoding='latin-1') as f:
                 pdf2 = PyPDF2.PdfReader(f'{folder_path}/{file}')
                 text2 = ""
                 for page in range(len(pdf2.pages)):
                     text2 += pdf2.pages[page].extract_text()
-                text2 = re.sub(r'[^\w\s]', '', text2)
-        #
-        common_words = get_common_words(text1, text2)
+                #text2 = re.sub(r'[^\w\s]', '', text2)
+        
+        
+        text1_new = remove_stop_words(text1)
+        text2_new = remove_stop_words(text2)
+        common_words = get_common_words(text1_new, text2_new)
         common_sentences = get_common_sentences(text1, text2)
-        cosineSimilarity = get_cosine_similarity(text1, text2)
-        if len(text1) == len(text2):
-            jaccard = get_jaccard_distance(text1, text2)
-        else:
-            jaccard = 0
-        editDistance = get_edit_distance(text1, text2)
-        results.append({ 'file': file, 'jaccard': jaccard, 'editDistance': editDistance, 'cosineSimilarity': cosineSimilarity, 'common_sentences': common_sentences, 'common_words': common_words })
+        cosineSimilarity = get_cosine_similarity(text1_new, text2_new)
+        print(text1_new)
+        print(text2_new)
+        jaccard_score = get_jaccard_distance(text1_new, text2_new)
+        editDistance = get_edit_distance(text1_new, text2_new)
+        
+        results.append({ 'file': file, 'jaccard': jaccard_score, 'editDistance': editDistance, 'cosineSimilarity': cosineSimilarity, 'common_sentences': common_sentences, 'common_words': common_words })
 
     return render_template('result.html', results=results)
