@@ -1,4 +1,4 @@
-  # Plagiarism Checker ( Web Engineering - Dr. Khaled Bahnasy )
+ # Plagiarism Checker ( Web Engineering - Dr. Khaled Bahnasy )
 
   ## Steps To Run The Project
 
