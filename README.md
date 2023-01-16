@@ -30,7 +30,7 @@
 
 
 # Plagiarism Detector
-This program is a web application that allows users to check for plagiarism in texts. It compares the similarity of two PDF Files and returns a score indicating the degree of similarity.
+This is a web application that allows users to check for plagiarism in texts. It compares the similarity of a PDF File with a Folder Of PDFs and returns a score indicating the degree of similarity.
 
 # Features
 The program uses three different methods to measure similarity: Cosine similarity, Jaccard distance, and Levenshtein distance.
